@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Nigeria Prayer Times</title>
+<style>
+  :root{
+    --bg1:#07131f; --bg2:#0d2a3a; --bg3:#12404a;
+    --card:rgba(255,255,255,.06); --card-b:rgba(255,255,255,.12);
+    --text:#eaf3f2; --muted:#9db8b8; --gold:#f2c46d; --green:#3ddc97; --teal:#2bb3a8;
+    --radius:20px;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{
+    font-family:"Segoe UI",system-ui,-apple-system,Roboto,sans-serif;
+    color:var(--text); min-height:100vh;
+    background:linear-gradient(160deg,var(--bg1),var(--bg2) 55%,var(--bg3));
+    background-attachment:fixed; overflow-x:hidden;
+  }
+  #stars{position:fixed;inset:0;pointer-events:none;z-index:0}
+  .star{position:absolute;width:2px;height:2px;background:#fff;border-radius:50%;opacity:.5;animation:tw 4s infinite ease-in-out}
+  @keyframes tw{0%,100%{opacity:.15}50%{opacity:.9}}
+  .wrap{position:relative;z-index:1;max-width:1100px;margin:0 auto;padding:22px 16px 60px}
+
+  header{display:flex;flex-wrap:wrap;gap:14px;align-items:center;justify-content:space-between;margin-bottom:22px}
+  .brand{display:flex;align-items:center;gap:12px}
+  .brand .logo{width:46px;height:46px;border-radius:14px;display:grid;place-items:center;font-size:26px;
+    background:linear-gradient(135deg,var(--gold),#d98f3a);box-shadow:0 6px 20px rgba(242,196,109,.35)}
+  .brand h1{font-size:1.35rem;letter-spacing:.3px}
+  .brand p{font-size:.82rem;color:var(--muted)}
+  .controls{display:flex;flex-wrap:wrap;gap:8px}
+  select,button{
+    font:inherit;color:var(--text);background:var(--card);border:1px solid var(--card-b);
+    padding:9px 12px;border-radius:12px;cursor:pointer;backdrop-filter:blur(8px)
+  }
+  select option{color:#111}
+  button:hover,select:hover{border-color:var(--gold)}
+
+  .glass{background:var(--card);border:1px solid var(--card-b);border-radius:var(--radius);backdrop-filter:blur(10px)}
+
+  /* HERO */
+  .hero{display:grid;grid-template-columns:1.1fr 1fr;gap:18px;margin-bottom:18px}
+  @media(max-width:800px){.hero{grid-template-columns:1fr}}
+  .now{padding:26px;display:flex;align-items:center;gap:24px;flex-wrap:wrap;justify-content:center}
+  .ring{position:relative;width:200px;height:200px;flex:none}
+  .ring svg{transform:rotate(-90deg)}
+  .ring .track{stroke:rgba(255,255,255,.1)}
+  .ring .prog{stroke:url(#g);transition:stroke-dashoffset 1s linear;stroke-linecap:round}
+  .ring .mid{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center}
+  .ring .mid small{color:var(--muted);font-size:.75rem;text-transform:uppercase;letter-spacing:1.5px}
+  .ring .mid b{font-size:2rem;font-variant-numeric:tabular-nums;margin:2px 0}
+  .ring .mid span{color:var(--gold);font-weight:600}
+  .nowinfo h2{font-size:1.9rem;font-variant-numeric:tabular-nums}
+  .nowinfo .date{color:var(--muted);margin-top:4px}
+  .nowinfo .hijri{color:var(--gold);margin-top:6px;font-weight:600}
+  .nowinfo .loc{margin-top:10px;font-size:.85rem;color:var(--muted)}
+
+  .today{padding:18px}
+  .today h3{font-size:.8rem;text-transform:uppercase;letter-spacing:1.5px;color:var(--muted);margin-bottom:10px}
+  .plist{display:flex;flex-direction:column;gap:8px}
+  .prow{display:flex;align-items:center;gap:12px;padding:10px 12px;border-radius:14px;border:1px solid transparent;transition:.25s}
+  .prow .ic{font-size:1.3rem;width:30px;text-align:center}
+  .prow .nm{flex:1}
+  .prow .nm b{display:block}
+  .prow .nm small{color:var(--muted);font-size:.75rem}
+  .prow .tm{font-size:1.15rem;font-weight:700;font-variant-numeric:tabular-nums}
+  .prow.past{opacity:.45}
+  .prow.next{background:linear-gradient(90deg,rgba(242,196,109,.18),rgba(242,196,109,.04));border-color:rgba(242,196,109,.6);box-shadow:0 0 24px rgba(242,196,109,.15)}
+  .prow.minor .tm{font-size:1rem;font-weight:500}
+
+  /* CALENDAR */
+  .cal{padding:20px;margin-bottom:18px}
+  .calhead{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;gap:10px;flex-wrap:wrap}
+  .calhead h3{font-size:1.2rem}
+  .calhead .nav{display:flex;gap:8px;align-items:center}
+  .grid{display:grid;grid-template-columns:repeat(7,1fr);gap:6px}
+  .dow{text-align:center;font-size:.75rem;color:var(--muted);padding:4px 0;text-transform:uppercase;letter-spacing:1px}
+  .dow.fri{color:var(--green)}
+  .cell{min-height:84px;padding:7px;border-radius:12px;background:rgba(255,255,255,.04);border:1px solid transparent;cursor:pointer;
+    transition:.2s;display:flex;flex-direction:column;gap:2px;font-size:.72rem}
+  .cell:hover{background:rgba(255,255,255,.1);transform:translateY(-2px)}
+  .cell.empty{visibility:hidden}
+  .cell .d{display:flex;justify-content:space-between;align-items:baseline}
+  .cell .d b{font-size:1rem}
+  .cell .d i{font-style:normal;color:var(--muted);font-size:.65rem}
+  .cell .t{color:var(--muted);font-variant-numeric:tabular-nums}
+  .cell .t span{color:var(--text)}
+  .cell.fri{background:rgba(61,220,151,.1)}
+  .cell.today{border-color:var(--gold);box-shadow:0 0 0 1px var(--gold) inset}
+  .cell.sel{background:rgba(43,179,168,.28);border-color:var(--teal)}
+  @media(max-width:640px){.cell{min-height:52px;padding:4px}.cell .t{display:none}.cell .d i{display:none}}
+
+  .detail{margin-top:14px;padding:16px;border-radius:16px;background:rgba(0,0,0,.2);border:1px solid var(--card-b)}
+  .detail h4{margin-bottom:10px;font-size:1rem}
+  .chips{display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:8px}
+  .chip{padding:10px;border-radius:12px;background:rgba(255,255,255,.06);text-align:center}
+  .chip small{display:block;color:var(--muted);font-size:.72rem;margin-bottom:2px}
+  .chip b{font-size:1.1rem;font-variant-numeric:tabular-nums}
+
+  /* TABLE */
+  .tablewrap{padding:20px;overflow-x:auto}
+  .tablewrap h3{margin-bottom:12px}
+  table{width:100%;border-collapse:collapse;min-width:620px;font-variant-numeric:tabular-nums}
+  th{font-size:.72rem;text-transform:uppercase;letter-spacing:1px;color:var(--muted);text-align:center;padding:8px 6px;border-bottom:1px solid var(--card-b)}
+  td{text-align:center;padding:8px 6px;border-bottom:1px solid rgba(255,255,255,.05)}
+  td:first-child,th:first-child{text-align:left}
+  tr.fri td{background:rgba(61,220,151,.08)}
+  tr.today td{background:rgba(242,196,109,.16);font-weight:700}
+
+  footer{margin-top:22px;text-align:center;color:var(--muted);font-size:.78rem;line-height:1.6}
+
+  @media print{
+    body{background:#fff;color:#000}
+    #stars,.controls,.hero,.cal,.nav{display:none!important}
+    .tablewrap{background:none;border:none;color:#000}
+    th,td{color:#000}
+  }
+</style>
+</head>
+<body>
+<div id="stars"></div>
+<div class="wrap">
+
+  <header>
+    <div class="brand">
+      <div class="logo">🕌</div>
+      <div>
+        <h1>Nigeria Prayer Times</h1>
+        <p>Salah timetable · West Africa Time (WAT, UTC+1)</p>
+      </div>
+    </div>
+    <div class="controls">
+      <select id="city" aria-label="City"></select>
+      <select id="method" aria-label="Calculation method">
+        <option value="mwl">Muslim World League</option>
+        <option value="egypt">Egyptian Authority</option>
+        <option value="karachi">Univ. Islamic Sciences, Karachi</option>
+      </select>
+      <select id="asr" aria-label="Asr">
+        <option value="1">Asr: Standard (Shafi'i, Maliki, Hanbali)</option>
+        <option value="2">Asr: Hanafi</option>
+      </select>
+      <button id="fmt">12h / 24h</button>
+      <button onclick="window.print()">🖨 Print</button>
+    </div>
+  </header>
+
+  <section class="hero">
+    <div class="glass now">
+      <div class="ring">
+        <svg width="200" height="200" viewBox="0 0 200 200">
+          <defs>
+            <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
+              <stop offset="0" stop-color="#f2c46d"/><stop offset="1" stop-color="#3ddc97"/>
+            </linearGradient>
+          </defs>
+          <circle class="track" cx="100" cy="100" r="88" fill="none" stroke-width="12"/>
+          <circle id="prog" class="prog" cx="100" cy="100" r="88" fill="none" stroke-width="12"
+                  stroke-dasharray="552.9" stroke-dashoffset="552.9"/>
+        </svg>
+        <div class="mid">
+          <small>Next prayer</small>
+          <span id="nextName">—</span>
+          <b id="countdown">--:--:--</b>
+          <small id="nextAt">—</small>
+        </div>
+      </div>
+      <div class="nowinfo">
+        <h2 id="clock">--:--:--</h2>
+        <div class="date" id="gdate"></div>
+        <div class="hijri" id="hdate"></div>
+        <div class="loc" id="locinfo"></div>
+      </div>
+    </div>
+
+    <div class="glass today">
+      <h3>Today's prayers</h3>
+      <div class="plist" id="todayList"></div>
+    </div>
+  </section>
+
+  <section class="glass cal">
+    <div class="calhead">
+      <h3 id="monthTitle"></h3>
+      <div class="nav">
+        <button id="prev">‹</button>
+        <button id="todayBtn">Today</button>
+        <button id="next">›</button>
+      </div>
+    </div>
+    <div class="grid" id="grid"></div>
+    <div class="detail" id="detail"></div>
+  </section>
+
+  <section class="glass tablewrap">
+    <h3 id="tableTitle">Monthly timetable</h3>
+    <table>
+      <thead>
+        <tr><th>Date</th><th>Fajr</th><th>Sunrise</th><th>Dhuhr</th><th>Asr</th><th>Maghrib</th><th>Isha</th></tr>
+      </thead>
+      <tbody id="tbody"></tbody>
+    </table>
+  </section>
+
+  <footer>
+    Times are calculated astronomically for each city and may differ by a few minutes from your local mosque's timetable.<br>
+    Always follow your local masjid or Islamic council for official timings and moon-sighting announcements.
+  </footer>
+</div>
+
+<script>
+/* ---------- Data ---------- */
+const CITIES = {
+  "Abuja":[9.0765,7.3986],"Lagos":[6.5244,3.3792],"Kano":[12.0022,8.5920],"Ibadan":[7.3775,3.9470],
+  "Kaduna":[10.5105,7.4165],"Port Harcourt":[4.8156,7.0498],"Benin City":[6.3350,5.6037],
+  "Maiduguri":[11.8333,13.1500],"Zaria":[11.0855,7.7199],"Jos":[9.8965,8.8583],"Ilorin":[8.4966,4.5421],
+  "Abeokuta":[7.1475,3.3619],"Enugu":[6.4584,7.5464],"Sokoto":[13.0059,5.2476],"Katsina":[12.9908,7.6018],
+  "Yola":[9.2035,12.4954],"Bauchi":[10.3158,9.8442],"Gusau":[12.1628,6.6614],"Minna":[9.6139,6.5569],
+  "Lokoja":[7.8023,6.7333],"Osogbo":[7.7827,4.5418],"Owerri":[5.4840,7.0351],"Calabar":[4.9757,8.3417],
+  "Warri":[5.5167,5.7500],"Akure":[7.2526,5.1931],"Makurdi":[7.7337,8.5214],"Gombe":[10.2897,11.1673],
+  "Birnin Kebbi":[12.4539,4.1975]
+};
+const METHODS = {mwl:{f:18,i:17}, egypt:{f:19.5,i:17.5}, karachi:{f:18,i:18}};
+const TZ = 1; // WAT
+const PRAYERS = [
+  {k:"fajr",n:"Fajr",ic:"🌌",d:"Pre-dawn"},
+  {k:"sunrise",n:"Sunrise",ic:"🌅",d:"End of Fajr",minor:true},
+  {k:"dhuhr",n:"Dhuhr",ic:"☀️",d:"Midday"},
+  {k:"asr",n:"Asr",ic:"🌤",d:"Afternoon"},
+  {k:"maghrib",n:"Maghrib",ic:"🌇",d:"Sunset"},
+  {k:"isha",n:"Isha",ic:"🌙",d:"Night"}
+];
+
+/* ---------- State ---------- */
+let state = {city:"Abuja", method:"mwl", asr:1, h24:false};
+try{ Object.assign(state, JSON.parse(localStorage.getItem("ngPrayer")||"{}")); }catch(e){}
+if(!CITIES[state.city]) state.city="Abuja";
+const save=()=>{ try{localStorage.setItem("ngPrayer",JSON.stringify(state));}catch(e){} };
+
+/* WAT "now" helpers (independent of device timezone) */
+const watNow = () => new Date(Date.now() + TZ*3600000);
+function watToday(){const n=watNow();return {y:n.getUTCFullYear(),m:n.getUTCMonth(),d:n.getUTCDate()};}
+let view = watToday();           // month being viewed
+let selected = watToday();       // selected day
+
+/* ---------- Astronomy ---------- */
+const R=Math.PI/180;
+const sin=x=>Math.sin(x*R), cos=x=>Math.cos(x*R), tan=x=>Math.tan(x*R);
+const acos=x=>Math.acos(x)/R, atan=x=>Math.atan(x)/R;
+const fixA=a=>{a=a%360;return a<0?a+360:a};
+const fixH=h=>{h=h%24;return h<0?h+24:h};
+
+function sunPos(jd){
+  const D=jd-2451545.0;
+  const g=fixA(357.529+0.98560028*D), q=fixA(280.459+0.98564736*D);
+  const L=fixA(q+1.915*sin(g)+0.020*sin(2*g));
+  const e=23.439-0.00000036*D;
+  let RA=Math.atan2(cos(e)*sin(L),cos(L))/R/15; RA=fixH(RA);
+  let eqt=q/15-RA; if(eqt>12)eqt-=24; if(eqt<-12)eqt+=24;
+  return {decl:Math.asin(sin(e)*sin(L))/R, eqt};
+}
+function computeTimes(y,m,d,lat,lng,method,asrFactor){
+  const jd=Date.UTC(y,m,d,12)/86400000+2440587.5;
+  const {decl,eqt}=sunPos(jd);
+  const noon=12+TZ-lng/15-eqt;
+  const t=a=>acos((-sin(a)-sin(decl)*sin(lat))/(cos(decl)*cos(lat)))/15;
+  const asrAngle=-atan(1/(asrFactor+tan(Math.abs(lat-decl))));
+  const mt=METHODS[method];
+  return {
+    fajr:noon-t(mt.f), sunrise:noon-t(0.833), dhuhr:noon+ (1/60),
+    asr:noon+t(asrAngle), maghrib:noon+t(0.833)+(1/60), isha:noon+t(mt.i)
+  };
+}
+function getTimes(y,m,d){
+  const [lat,lng]=CITIES[state.city];
+  return computeTimes(y,m,d,lat,lng,state.method,state.asr);
+}
+
+/* ---------- Formatting ---------- */
+function fmt(h,withSuffix=true){
+  let mins=Math.round(h*60); mins=((mins%1440)+1440)%1440;
+  let H=Math.floor(mins/60), M=mins%60;
+  const mm=String(M).padStart(2,"0");
+  if(state.h24) return String(H).padStart(2,"0")+":"+mm;
+  const suf=H>=12?"PM":"AM"; H=H%12||12;
+  return H+":"+mm+(withSuffix?" "+suf:"");
+}
+const pad=n=>String(n).padStart(2,"0");
+const MONTHS=["January","February","March","April","May","June","July","August","September","October","November","December"];
+const DAYS=["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
+function hijri(y,m,d,full=true){
+  try{
+    const dt=new Date(Date.UTC(y,m,d,12));
+    return new Intl.DateTimeFormat("en-u-ca-islamic-umalqura",{day:"numeric",month:full?"long":"numeric",year:full?"numeric":undefined,timeZone:"UTC"}).format(dt);
+  }catch(e){return "";}
+}
+const hDay=(y,m,d)=>{ try{return new Intl.DateTimeFormat("en-u-ca-islamic-umalqura",{day:"numeric",timeZone:"UTC"}).format(new Date(Date.UTC(y,m,d,12)));}catch(e){return "";} };
+
+/* ---------- UI: Stars ---------- */
+(function(){
+  const s=document.getElementById("stars");
+  for(let i=0;i<70;i++){
+    const el=document.createElement("div");el.className="star";
+    el.style.left=Math.random()*100+"%";el.style.top=Math.random()*100+"%";
+    el.style.animationDelay=(Math.random()*4)+"s";
+    const z=Math.random()*2+1;el.style.width=el.style.height=z+"px";
+    s.appendChild(el);
+  }
+})();
+
+/* ---------- UI: Controls ---------- */
+const citySel=document.getElementById("city");
+Object.keys(CITIES).forEach(c=>{const o=document.createElement("option");o.value=o.textContent=c;citySel.appendChild(o);});
+citySel.value=state.city;
+document.getElementById("method").value=state.method;
+document.getElementById("asr").value=String(state.asr);
+citySel.onchange=e=>{state.city=e.target.value;save();renderAll();};
+document.getElementById("method").onchange=e=>{state.method=e.target.value;save();renderAll();};
+document.getElementById("asr").onchange=e=>{state.asr=+e.target.value;save();renderAll();};
+document.getElementById("fmt").onclick=()=>{state.h24=!state.h24;save();renderAll();};
+document.getElementById("prev").onclick=()=>{view.m--;if(view.m<0){view.m=11;view.y--;}renderCalendar();};
+document.getElementById("next").onclick=()=>{view.m++;if(view.m>11){view.m=0;view.y++;}renderCalendar();};
+document.getElementById("todayBtn").onclick=()=>{const t=watToday();view={...t};selected={...t};renderCalendar();};
+
+/* ---------- Render: today list ---------- */
+function renderToday(){
+  const t=watToday(), times=getTimes(t.y,t.m,t.d);
+  const nowH=watNow().getUTCHours()+watNow().getUTCMinutes()/60+watNow().getUTCSeconds()/3600;
+  const next=nextPrayer(nowH,t);
+  const box=document.getElementById("todayList"); box.innerHTML="";
+  PRAYERS.forEach(p=>{
+    const row=document.createElement("div");
+    row.className="prow"+(p.minor?" minor":"")+(next.key===p.k?" next":"")+((times[p.k]<nowH&&next.key!==p.k)?" past":"");
+    row.innerHTML=`<div class="ic">${p.ic}</div><div class="nm"><b>${p.n}</b><small>${p.d}</small></div><div class="tm">${fmt(times[p.k])}</div>`;
+    box.appendChild(row);
+  });
+}
+
+/* ---------- Next prayer + ring ---------- */
+const MAIN=["fajr","dhuhr","asr","maghrib","isha"];
+function nextPrayer(nowH,t){
+  const times=getTimes(t.y,t.m,t.d);
+  for(let i=0;i<MAIN.length;i++){
+    if(times[MAIN[i]]>nowH){
+      const prev = i>0 ? times[MAIN[i-1]] : (()=>{const y=new Date(Date.UTC(t.y,t.m,t.d-1));const yt=getTimes(y.getUTCFullYear(),y.getUTCMonth(),y.getUTCDate());return yt.isha-24;})();
+      return {key:MAIN[i],at:times[MAIN[i]],prev,tomorrow:false};
+    }
+  }
+  const tm=new Date(Date.UTC(t.y,t.m,t.d+1));
+  const tt=getTimes(tm.getUTCFullYear(),tm.getUTCMonth(),tm.getUTCDate());
+  return {key:"fajr",at:tt.fajr+24,prev:times.isha,tomorrow:true};
+}
+function tick(){
+  const n=watNow(), t={y:n.getUTCFullYear(),m:n.getUTCMonth(),d:n.getUTCDate()};
+  const nowH=n.getUTCHours()+n.getUTCMinutes()/60+n.getUTCSeconds()/3600;
+  document.getElementById("clock").textContent=state.h24
+    ? `${pad(n.getUTCHours())}:${pad(n.getUTCMinutes())}:${pad(n.getUTCSeconds())}`
+    : `${n.getUTCHours()%12||12}:${pad(n.getUTCMinutes())}:${pad(n.getUTCSeconds())} ${n.getUTCHours()>=12?"PM":"AM"}`;
+  document.getElementById("gdate").textContent=`${DAYS[n.getUTCDay()]}, ${t.d} ${MONTHS[t.m]} ${t.y}`;
+  document.getElementById("hdate").textContent=hijri(t.y,t.m,t.d);
+
+  const nx=nextPrayer(nowH,t);
+  const name=PRAYERS.find(p=>p.k===nx.key).n;
+  let diff=Math.max(0,(nx.at-nowH)*3600);
+  const H=Math.floor(diff/3600),M=Math.floor(diff%3600/60),S=Math.floor(diff%60);
+  document.getElementById("nextName").textContent=name;
+  document.getElementById("countdown").textContent=`${pad(H)}:${pad(M)}:${pad(S)}`;
+  document.getElementById("nextAt").textContent=`at ${fmt(nx.at)}${nx.tomorrow?" (tomorrow)":""}`;
+  const span=nx.at-nx.prev, done=Math.min(1,Math.max(0,(nowH-nx.prev)/span));
+  document.getElementById("prog").style.strokeDashoffset=552.9*(1-done);
+  if(Math.floor(nowH*3600)%30===0) renderToday();
+}
+
+/* ---------- Render: calendar ---------- */
+function renderCalendar(){
+  const {y,m}=view, today=watToday();
+  document.getElementById("monthTitle").textContent=`${MONTHS[m]} ${y}`;
+  document.getElementById("tableTitle").textContent=`Monthly timetable · ${MONTHS[m]} ${y} · ${state.city}`;
+  const grid=document.getElementById("grid"); grid.innerHTML="";
+  DAYS.forEach((d,i)=>{const el=document.createElement("div");el.className="dow"+(i===5?" fri":"");el.textContent=d;grid.appendChild(el);});
+  const first=new Date(Date.UTC(y,m,1)).getUTCDay(), dim=new Date(Date.UTC(y,m+1,0)).getUTCDate();
+  for(let i=0;i<first;i++){const e=document.createElement("div");e.className="cell empty";grid.appendChild(e);}
+  const tbody=document.getElementById("tbody"); tbody.innerHTML="";
+  for(let d=1;d<=dim;d++){
+    const t=getTimes(y,m,d), dow=new Date(Date.UTC(y,m,d)).getUTCDay();
+    const isToday=(y===today.y&&m===today.m&&d===today.d);
+    const isSel=(y===selected.y&&m===selected.m&&d===selected.d);
+    const c=document.createElement("div");
+    c.className="cell"+(dow===5?" fri":"")+(isToday?" today":"")+(isSel?" sel":"");
+    c.innerHTML=`<div class="d"><b>${d}</b><i>${hDay(y,m,d)}</i></div>
+      <div class="t">Fajr <span>${fmt(t.fajr,false)}</span></div>
+      <div class="t">Mgrb <span>${fmt(t.maghrib,false)}</span></div>`;
+    c.onclick=()=>{selected={y,m,d};renderCalendar();};
+    grid.appendChild(c);
+
+    const tr=document.createElement("tr");
+    tr.className=(dow===5?"fri ":"")+(isToday?"today":"");
+    tr.innerHTML=`<td>${DAYS[dow]} ${d}${dow===5?" 🕌":""}</td><td>${fmt(t.fajr,false)}</td><td>${fmt(t.sunrise,false)}</td><td>${fmt(t.dhuhr,false)}</td><td>${fmt(t.asr,false)}</td><td>${fmt(t.maghrib,false)}</td><td>${fmt(t.isha,false)}</td>`;
+    tbody.appendChild(tr);
+  }
+  renderDetail();
+}
+function renderDetail(){
+  const {y,m,d}=selected, t=getTimes(y,m,d), dow=new Date(Date.UTC(y,m,d)).getUTCDay();
+  const box=document.getElementById("detail");
+  box.innerHTML=`<h4>${DAYS[dow]}, ${d} ${MONTHS[m]} ${y} · ${hijri(y,m,d)}${dow===5?" · Jumu'ah 🕌":""}</h4>
+    <div class="chips">${PRAYERS.map(p=>`<div class="chip"><small>${p.ic} ${p.n==="Dhuhr"&&dow===5?"Dhuhr / Jumu'ah":p.n}</small><b>${fmt(t[p.k])}</b></div>`).join("")}</div>`;
+}
+
+function renderAll(){
+  const [lat,lng]=CITIES[state.city];
+  document.getElementById("locinfo").textContent=`📍 ${state.city} · ${lat.toFixed(2)}°N, ${lng.toFixed(2)}°E`;
+  renderToday(); renderCalendar(); tick();
+}
+renderAll();
+setInterval(tick,1000);
+</script>
+</body>
+</html>
